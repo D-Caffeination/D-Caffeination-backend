@@ -32,16 +32,17 @@ jobs:
           restore-keys: ${{ runner.os }}-gradle
       - name: Build and analyze
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Needed to get PR information, if any
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
           SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
         run: ./gradlew build sonarqube --info
       - name: Make Directory
         run: mkdir -p deploy
-      - name: Copy Jar
-        run: cp ./build/libs/*.jar ./deploy
-      - name: Copy CodeDeploy Setting File
-        run: cp appspec.yml ./deploy
+      - name: Copy Jar, appspec.yml, scrips
+        run: |
+          cp ./build/libs/*.jar ./deploy 
+          cp appspec.yml ./deploy 
+          cp scripts/* ./deploy
       - name: Make zip file
         run: zip -r ./decaf-springboot.zip ./deploy
       - name: Aws Configure
