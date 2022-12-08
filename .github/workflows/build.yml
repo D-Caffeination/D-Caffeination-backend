@@ -40,9 +40,11 @@ jobs:
         run: mkdir -p deploy
       - name: Copy Jar
         run: cp ./build/libs/*.jar ./deploy
+      - name: Copy CodeDeploy Setting File
+        run: cp appspec.yml ./deploy
       - name: Make zip file
         run: zip -r ./decaf-springboot.zip ./deploy
-      - name: Deploy
+      - name: Aws Configure
         uses: aws-actions/configure-aws-credentials@v1
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY }}
@@ -50,3 +52,8 @@ jobs:
           aws-region: ap-northeast-2
       - name: Upload to S3
         run: aws s3 cp --region ap-northeast-2 --acl private ./decaf-springboot.zip s3://decaf-springboot-build/
+      - name: CodeDeploy
+        run: > 
+          aws deploy create-deployment --application-name decaf-springboot --deployment-group-name decaf-springboot-group 
+          --s3-location bucket=decaf-springboot-build,key=decaf-springboot.zip,bundleType=zip
+
